@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PalTracker.ConfigurationEntities;
 
 namespace PalTracker
 {
@@ -19,6 +20,16 @@ namespace PalTracker
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddSingleton(x => new WelcomeMessage(
+                GetConfigurationValue("WELCOME_MESSAGE")
+            ));
+            services.AddSingleton(x => new CloudFoundryEnvironment(
+                GetConfigurationValue("PORT"),
+                GetConfigurationValue("MEMORY_LIMIT"),
+                GetConfigurationValue("CF_INSTANCE_INDEX"),
+                GetConfigurationValue("CF_INSTANCE_ADDR")
+            ));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,6 +47,11 @@ namespace PalTracker
 
             app.UseHttpsRedirection();
             app.UseMvc();
+        }
+
+        private string GetConfigurationValue(string key)
+        {
+            return Configuration.GetValue<string>(key, $"{key} not configured.");
         }
     }
 }

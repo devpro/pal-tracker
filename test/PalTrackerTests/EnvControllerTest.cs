@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
-using PalTracker;
+﻿using PalTracker.ConfigurationEntities;
+using PalTracker.Controllers;
 using Xunit;
 
 namespace PalTrackerTests
@@ -10,14 +9,14 @@ namespace PalTrackerTests
         [Fact]
         public void Get()
         {
-            var cloudFoundryInfo = new CloudFoundryInfo(
+            var cloudFoundryInfo = new CloudFoundryEnvironment(
                 "8080",
                 "512M",
                 "1",
                 "127.0.0.1"
             );
 
-            var response = new EnvController(cloudFoundryInfo).Get();
+            var response = new EnvironmentController(cloudFoundryInfo).Get();
 
             Assert.Equal("8080", response.Port);
             Assert.Equal("512M", response.MemoryLimit);

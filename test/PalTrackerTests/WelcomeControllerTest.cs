@@ -1,4 +1,5 @@
-﻿using PalTracker;
+﻿using PalTracker.ConfigurationEntities;
+using PalTracker.Controllers;
 using Xunit;
 
 namespace PalTrackerTests
