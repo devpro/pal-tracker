@@ -6,5 +6,5 @@ applications:
     routes:
       - route: pal-tracker-bthomas-production.cfapps.io
     env:
-      WELCOME_MESSAGE: Hello from Production environment
+      WELCOME_MESSAGE: Hello from production environment
     memory: 256M
