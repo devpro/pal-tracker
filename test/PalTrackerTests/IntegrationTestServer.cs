@@ -5,7 +5,9 @@ namespace PalTrackerTests
 {
     public static class IntegrationTestServer
     {
-        public static TestServer Start() =>
-            new TestServer(Program.CreateWebHostBuilder(new string[] { }));
+        public static TestServer Start()
+        {
+            return new TestServer(Program.CreateWebHostBuilder(new string[] { }));
+        }
     }
 }

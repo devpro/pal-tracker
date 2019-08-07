@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace PalTrackerTests
+namespace PalTrackerTests.Integration
 {
     [Collection("Integration")]
     public class WelcomeIntegrationTest

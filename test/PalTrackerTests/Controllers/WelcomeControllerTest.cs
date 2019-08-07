@@ -1,19 +1,23 @@
-﻿using PalTracker.ConfigurationEntities;
+﻿using FluentAssertions;
+using PalTracker.ConfigurationEntities;
 using PalTracker.Controllers;
 using Xunit;
 
-namespace PalTrackerTests
+namespace PalTrackerTests.Controllers
 {
     public class WelcomeControllerTest
     {
         [Fact]
         public void Get()
         {
+            // Arrange
             var message = new WelcomeMessage("hello from test");
 
+            // Act
             var controller = new WelcomeController(message);
 
-            Assert.Equal("hello from test", controller.SayHello());
+            // Assert
+            controller.SayHello().Should().Be("hello from test");
         }
     }
 }

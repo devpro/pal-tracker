@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using PalTracker;
+using PalTracker.Controllers;
+using PalTracker.Entities;
+using PalTracker.Repositories;
 using Xunit;
 
-namespace PalTrackerTests
+namespace PalTrackerTests.Controllers
 {
     public class TimeEntryControllerTest
     {

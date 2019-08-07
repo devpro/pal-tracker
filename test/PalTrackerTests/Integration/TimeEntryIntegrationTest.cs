@@ -2,17 +2,17 @@
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using FluentAssertions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PalTracker;
+using PalTracker.Entities;
 using Xunit;
 
-namespace PalTrackerTests
+namespace PalTrackerTests.Integration
 {
     [Collection("Integration")]
     public class TimeEntryIntegrationTest
     {
-
         private readonly HttpClient _testClient;
 
         public TimeEntryIntegrationTest()
@@ -23,7 +23,7 @@ namespace PalTrackerTests
         [Fact]
         public void Read()
         {
-            var id = CreateTimeEntry(new TimeEntry(999, 1010,  new DateTime(2015, 10, 10), 9));
+            var id = CreateTimeEntry(new TimeEntry(999, 1010, new DateTime(2015, 10, 10), 9));
 
             var response = _testClient.GetAsync($"/time-entries/{id}").Result;
             var responseBody = JObject.Parse(response.Content.ReadAsStringAsync().Result);
@@ -39,7 +39,7 @@ namespace PalTrackerTests
         [Fact]
         public void Create()
         {
-            var timeEntry = new TimeEntry(222, 333,  new DateTime(2008, 01, 08), 24);
+            var timeEntry = new TimeEntry(222, 333, new DateTime(2008, 01, 08), 24);
 
             var response = _testClient.PostAsync("/time-entries", SerializePayload(timeEntry)).Result;
             var responseBody = JObject.Parse(response.Content.ReadAsStringAsync().Result);
@@ -55,8 +55,8 @@ namespace PalTrackerTests
         [Fact]
         public void List()
         {
-            var id1 = CreateTimeEntry(new TimeEntry(222, 333,  new DateTime(2008, 01, 08), 24));
-            var id2 = CreateTimeEntry(new TimeEntry(444, 555,  new DateTime(2008, 02, 10), 6));
+            var id1 = CreateTimeEntry(new TimeEntry(222, 333, new DateTime(2008, 01, 08), 24));
+            var id2 = CreateTimeEntry(new TimeEntry(444, 555, new DateTime(2008, 02, 10), 6));
 
             var response = _testClient.GetAsync("/time-entries").Result;
             var responseBody = JArray.Parse(response.Content.ReadAsStringAsync().Result);
@@ -79,8 +79,8 @@ namespace PalTrackerTests
         [Fact]
         public void Update()
         {
-            var id = CreateTimeEntry(new TimeEntry(222, 333,  new DateTime(2008, 01, 08), 24));
-            var updated = new TimeEntry(999, 888,  new DateTime(2012, 08, 12), 2);
+            var id = CreateTimeEntry(new TimeEntry(222, 333, new DateTime(2008, 01, 08), 24));
+            var updated = new TimeEntry(999, 888, new DateTime(2012, 08, 12), 2);
 
             var putResponse = _testClient.PutAsync($"/time-entries/{id}", SerializePayload(updated)).Result;
             var getResponse = _testClient.GetAsync($"/time-entries/{id}").Result;
@@ -92,7 +92,7 @@ namespace PalTrackerTests
 
             var getAllResponseBody = JArray.Parse(getAllResponse.Content.ReadAsStringAsync().Result);
 
-            Assert.Equal(1, getAllResponseBody.Count);
+            getAllResponseBody.Count.Should().Be(1);
             Assert.Equal(id, getAllResponseBody[0]["id"].ToObject<int>());
             Assert.Equal(999, getAllResponseBody[0]["projectId"].ToObject<long>());
             Assert.Equal(888, getAllResponseBody[0]["userId"].ToObject<long>());
@@ -111,7 +111,7 @@ namespace PalTrackerTests
         [Fact]
         public void Delete()
         {
-            var id = CreateTimeEntry(new TimeEntry(222, 333,  new DateTime(2008, 01, 08), 24));
+            var id = CreateTimeEntry(new TimeEntry(222, 333, new DateTime(2008, 01, 08), 24));
 
             var deleteResponse = _testClient.DeleteAsync($"/time-entries/{id}").Result;
             var getResponse = _testClient.GetAsync($"/time-entries/{id}").Result;
@@ -133,10 +133,13 @@ namespace PalTrackerTests
             return responseBody["id"].ToObject<long>();
         }
 
-        private static HttpContent SerializePayload(TimeEntry timeEntry) => new StringContent(
-            JsonConvert.SerializeObject(timeEntry),
-            Encoding.UTF8,
-            "application/json"
-        );
+        private static HttpContent SerializePayload(TimeEntry timeEntry)
+        {
+            return new StringContent(
+                JsonConvert.SerializeObject(timeEntry),
+                Encoding.UTF8,
+                "application/json"
+            );
+        }
     }
 }
