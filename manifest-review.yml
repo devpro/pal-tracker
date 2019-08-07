@@ -6,5 +6,5 @@ applications:
     routes:
       - route: pal-tracker-bthomas-review.cfapps.io
     env:
-      WELCOME_MESSAGE: Hello from review environment
+      WELCOME_MESSAGE: Hello from the review environment
     memory: 256M
