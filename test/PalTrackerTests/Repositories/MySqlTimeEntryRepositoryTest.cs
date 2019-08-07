@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using PalTracker;
+using PalTracker.Entities;
+using PalTracker.Repositories;
 using Xunit;
 
-namespace PalTrackerTests
+namespace PalTrackerTests.Repositories
 {
     [Collection("Integration")]
     public class MySqlTimeEntryRepositoryTest
@@ -25,82 +27,81 @@ namespace PalTrackerTests
         [Fact]
         public void CreateInsertsATimeEntryRecord()
         {
+            // Arrange
             var newTimeEntry = new TimeEntry(123, 456, DateTime.Parse("2012-01-02"), 12);
 
+            // Act
             var createdTimeEntryId = _repository.Create(newTimeEntry).Id.Value;
 
+            // Assert
             var foundInDb = FindInDb(createdTimeEntryId);
-
-            Assert.Equal(createdTimeEntryId, foundInDb[0]["id"]);
-            Assert.Equal(newTimeEntry.ProjectId, foundInDb[0]["project_id"]);
-            Assert.Equal(newTimeEntry.UserId, foundInDb[0]["user_id"]);
-            Assert.Equal(newTimeEntry.Date, foundInDb[0]["date"]);
-            Assert.Equal(newTimeEntry.Hours, foundInDb[0]["hours"]);
-
-            Assert.Equal(1, foundInDb.Count);
+            foundInDb.Count.Should().Be(1);
         }
 
         [Fact]
         public void CreateReturnsTheCreatedTimeEntry()
         {
+            // Arrange
             var newTimeEntry = new TimeEntry(123, 456, DateTime.Parse("2012-01-02"), 12);
 
+            // Act
             var createdTimeEntry = _repository.Create(newTimeEntry);
 
-            Assert.NotNull(createdTimeEntry.Id);
-            Assert.Equal(newTimeEntry.ProjectId, createdTimeEntry.ProjectId);
-            Assert.Equal(newTimeEntry.UserId, createdTimeEntry.UserId);
-            Assert.Equal(newTimeEntry.Date, createdTimeEntry.Date);
-            Assert.Equal(newTimeEntry.Hours, createdTimeEntry.Hours);
+            // Assert
+            createdTimeEntry.Id.Should().NotBeNull();
+            createdTimeEntry.Should().BeEquivalentTo(new TimeEntry(createdTimeEntry.Id.Value, 123, 456, DateTime.Parse("2012-01-02"), 12));
         }
 
         [Fact]
         public void FindFindsATimeEntry()
         {
+            // Arrange
             CreateInDb(new TimeEntry(1, 123, 456, DateTime.Parse("2012-01-02"), 12));
 
+            // Act
             var timeEntry = _repository.Find(1);
 
-            Assert.Equal(1L, timeEntry.Id);
-            Assert.Equal(123L, timeEntry.ProjectId);
-            Assert.Equal(456L, timeEntry.UserId);
-            Assert.Equal(DateTime.Parse("2012-01-02"), timeEntry.Date);
-            Assert.Equal(12, timeEntry.Hours);
+            // Assert
+            timeEntry.Should().BeEquivalentTo(new TimeEntry(1L, 123L, 456L, DateTime.Parse("2012-01-02"), 12));
         }
 
         [Fact]
         public void ListFindsAllTimeEntries()
         {
+            // Arrange
             var expected = new List<TimeEntry>
             {
                 new TimeEntry(1, 111, 222, DateTime.Parse("2017-12-09"), 2),
                 new TimeEntry(2, 333, 444, DateTime.Parse("2012-01-02"), 12),
                 new TimeEntry(3, 555, 666, DateTime.Parse("1998-11-24"), 1)
             };
-
             expected.ForEach(CreateInDb);
 
+            // Act
             var timeEntries = _repository.List();
+            timeEntries.Count.Should().Be(3);
 
-            expected.ForEach(e => Assert.Contains(e, timeEntries));
-
-            Assert.Equal(expected.Count, timeEntries.Count());
+            expected.ForEach(e => timeEntries.Single(x => x.Id == e.Id).Should().BeEquivalentTo(e));
         }
 
         [Fact]
         public void ContainsTrueWhenPresent()
         {
+            // Arrange
             CreateInDb(new TimeEntry(1, 123, 456, DateTime.Parse("2012-01-02"), 12));
 
-            Assert.True(_repository.Contains(1));
+            // Act & Assert
+            _repository.Contains(1).Should().BeTrue();
         }
 
         [Fact]
         public void ContainsFalseWhenAbsent()
         {
+            // Arrange
             CreateInDb(new TimeEntry(1, 123, 456, DateTime.Parse("2012-01-02"), 12));
 
-            Assert.False(_repository.Contains(2));
+            // Act & Assert
+            _repository.Contains(2).Should().BeFalse();
         }
 
         [Fact]
@@ -169,8 +170,8 @@ namespace PalTrackerTests
         }
 
         private static IList<IDictionary<string, object>> FindInDb(long id) => DbTestSupport.ExecuteSql(
-            $@"SELECT id, project_id, user_id, date, hours 
-               FROM time_entries 
+            $@"SELECT id, project_id, user_id, date, hours
+               FROM time_entries
                WHERE id = {id}"
         );
 
