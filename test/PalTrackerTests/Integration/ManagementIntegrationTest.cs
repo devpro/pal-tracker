@@ -4,7 +4,7 @@ using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace PalTrackerTests
+namespace PalTrackerTests.Integrations
 {
     [Collection("Integration")]
     public class ManagementIntegrationTest

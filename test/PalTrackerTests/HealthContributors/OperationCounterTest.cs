@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
-using PalTracker;
+using PalTracker.Entities;
+using PalTracker.HealthContributors;
 using Xunit;
 
-namespace PalTrackerTests
+namespace PalTrackerTests.HealthContributors
 {
     public class OperationCounterTest
     {
